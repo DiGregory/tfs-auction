@@ -1,0 +1,62 @@
+{{define "UserLots"}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lots</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <link href="/tmp/styles.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">title</th>
+            <th scope="col">description</th>
+            <th scope="col">buy_price</th>
+            <th scope="col">min_price</th>
+            <th scope="col">price_step</th>
+            <th scope="col">endAt</th>
+            <th scope="col">status</th>
+            <th scope="col">Creator</th>
+            <th scope="col">Buyer</th>
+        </tr>
+        </thead>
+        <tbody>
+
+
+        {{range $i,$v:=.lots}}
+        <tr>
+            <th scope="row">{{.ID}}</th>
+            <td> {{.Title}}</td>
+            <td>{{.Description}}</td>
+            <td>{{.BuyPrice}}</td>
+            <td>{{.MinPrice}}</td>
+            <td>{{.PriceStep}}</td>
+            <td>{{.EndAt}}</td>
+            <td>{{.Status}}</td>
+            <td>{{.Creator.ID}} {{.Creator.FirstName}} {{.Creator.LastName}}</td>
+            <td> {{if   .Buyer  }} {{.Buyer.ID}} {{.Buyer.FirstName}} {{.Buyer.LastName}}   {{end}}</td>
+
+
+        </tr>
+        {{end}}
+
+
+        </tbody>
+    </table>
+
+
+</div>
+</body>
+</html>
+{{end}}

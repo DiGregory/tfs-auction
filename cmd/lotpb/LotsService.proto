@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+
+option go_package = "lotpb";
+
+message SingleLotRequestId {
+    int64 id = 1;
+
+}
+
+message Lot {
+// @inject_tag: json:"ip"
+    int64 ID = 1 ;
+    // @inject_tag: json:"title"
+    string Title = 2;
+    // @inject_tag: json:"description"
+    string Description = 3;
+    // @inject_tag: json:"buy_price"
+    double BuyPrice = 4;
+    // @inject_tag: json:"min_price"
+    double MinPrice = 5;
+    // @inject_tag: json:"price_step"
+    double PriceStep = 6;
+    // @inject_tag: json:"status"
+    string Status = 7;
+    // @inject_tag: json:"end_at"
+    string EndAt = 8;
+      // @inject_tag: json:"created_at"
+    string CreatedAt = 9;
+       // @inject_tag: json:"updated_at"
+    string UpdateAt = 10;
+       // @inject_tag: json:"creator"
+    ShortUser Creator =11;
+       // @inject_tag: json:"buyer"
+    ShortUser Buyer =12;
+
+}
+
+message SingleLotResponse {
+    Lot lot = 1;
+}
+message ShortUser {
+   // @inject_tag: json:"id"
+ int64 ID = 1;
+    // @inject_tag: json:"first_name"
+ string FirstName = 2;
+    // @inject_tag: json:"last_name"
+ string  LastName = 3;
+ }
+message AllLotsRequestStatus{
+string Status=1;
+}
+message AllLotsResponse{
+repeated Lot lots=1;
+}
+message BuyLotRequest{
+bytes jsonReq=1;
+int64 LotID=2;
+int64 UserID=3;
+
+}
+message BuyingLotResponse{
+Lot lot =1;
+}
+message UpdateLotRequest{
+bytes jsonReq=1;
+int64 UserID=2;
+int64 LotID=3;
+}
+message UpdatedLotResponse{
+Lot lot =1;
+}
+message DeleteLotRequest{
+int64 UserID=1;
+int64 LotID=2;
+
+}
+message nothing{
+bool dummy=1;
+}
+message CreateLotRequest{
+bytes jsonReq=1;
+int64 UserID=2;
+}
+message CreatedLotResponse{
+Lot lot =1;
+
+}
+message AllUserLotsRequest{
+int64 UserID=1;
+string Type =2;
+}
+message AllUserLotsResponse{
+repeated Lot lots=1;
+}
+
+service LotsService {
+    // Unary
+   rpc GetSingleLot(SingleLotRequestId) returns(SingleLotResponse) {};
+   rpc GetAllLots(AllLotsRequestStatus) returns(AllLotsResponse){};
+   rpc BuyLot(BuyLotRequest) returns (BuyingLotResponse){};
+   rpc UpdateLot(UpdateLotRequest) returns(UpdatedLotResponse){};
+   rpc DeleteLot(DeleteLotRequest) returns(nothing){};
+   rpc CreateLot(CreateLotRequest) returns(CreatedLotResponse){};
+   rpc GetAllUserLots(AllUserLotsRequest) returns(AllUserLotsResponse){};
+}

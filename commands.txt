@@ -1,0 +1,10 @@
+
+protoc ./LotsService.proto --go_out=plugins=grpc:.
+protoc-go-inject-tag -input=./LotsService.pb.go
+
+go run ./cmd/auction-api/auction.go
+go run ./cmd/gateway-api/main.go ./cmd/gateway-api/gateway.go
+
+
+golangci-lint.exe run ./...
+go test -v ./...

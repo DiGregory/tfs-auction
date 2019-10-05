@@ -1,0 +1,97 @@
+{{define "LotInfo"}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lots</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <link href="/tmp/styles.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<script>
+
+
+    conn = new WebSocket("ws://127.0.0.1:5000/ws1");
+
+    conn.onmessage = function (event) {
+
+        var received_msg = JSON.parse(event.data);
+        if(document.getElementById("lot_row_"+received_msg.id)!=null) {
+
+            if (received_msg.creator==null) {
+                var myNode = document.getElementById("lot_row_" + received_msg.id);
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+                myNode.remove();
+            } else {
+
+                document.getElementById("lot_" + received_msg.id + "_T").innerHTML = received_msg.title;
+                document.getElementById("lot_" + received_msg.id + "_D").innerHTML = received_msg.description;
+                document.getElementById("lot_" + received_msg.id + "_BP").innerHTML = received_msg.buy_price;
+                document.getElementById("lot_" + received_msg.id + "_MP").innerHTML = received_msg.min_price;
+                document.getElementById("lot_" + received_msg.id + "_PS").innerHTML = received_msg.price_step;
+                document.getElementById("lot_" + received_msg.id + "_S").innerHTML = received_msg.status;
+                document.getElementById("lot_" + received_msg.id + "_EA").innerHTML = received_msg.end_at;
+                if (typeof received_msg.buyer != "undefined") {
+                    document.getElementById("lot_" + received_msg.id + "_B").innerHTML = received_msg.buyer.id + " " + received_msg.buyer.first_name + " " + received_msg.buyer.last_name;
+                }
+
+            }
+        }
+
+
+    };
+
+
+</script>
+
+
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">title</th>
+            <th scope="col">description</th>
+            <th scope="col">buy_price</th>
+            <th scope="col">min_price</th>
+            <th scope="col">price_step</th>
+            <th scope="col">endAt</th>
+            <th scope="col">status</th>
+            <th scope="col">Creator</th>
+            <th scope="col">Buyer</th>
+        </tr>
+        </thead>
+        <tbody>
+
+
+        <tr id="lot_row_{{.lot.ID}}">
+            <th scope="row" id="lot_{{.lot.ID}}">{{.lot.ID}}</th>
+            <td id="lot_{{.lot.ID}}_T"> {{.lot.Title}}</td>
+            <td id="lot_{{.lot.ID}}_D">{{.lot.Description}}</td>
+            <td id="lot_{{.lot.ID}}_BP">{{.lot.BuyPrice}}</td>
+            <td id="lot_{{.lot.ID}}_MP">{{.lot.MinPrice}}</td>
+            <td id="lot_{{.lot.ID}}_PS">{{.lot.PriceStep}}</td>
+            <td id="lot_{{.lot.ID}}_EA">{{.lot.EndAt}}</td>
+            <td id="lot_{{.lot.ID}}_S">{{.lot.Status}}</td>
+            <td id="lot_{{.lot.ID}}_C">{{.lot.Creator.ID}} {{.lot.Creator.FirstName}} {{.lot.Creator.LastName}}</td>
+            <td id="lot_{{.lot.ID}}_B"> {{if   .lot.Buyer  }} {{.lot.Buyer.ID}} {{.lot.Buyer.FirstName}} {{.lot.Buyer.LastName}}   {{end}}</td>
+
+
+        </tr>
+
+
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>
+{{end}}

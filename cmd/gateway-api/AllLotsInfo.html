@@ -1,0 +1,139 @@
+{{define "AllLotsInfo"}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lots</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <link href="/tmp/styles.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<script>
+    function getGet(name) {
+        var s = window.location.search;
+        s = s.match(new RegExp(name + '=([^&=]+)'));
+        return s ? s[1] : false;
+    }
+
+
+    conn = new WebSocket("ws://127.0.0.1:5000/ws2");
+
+    conn.onmessage = function (event) {
+        var status = getGet(`status`);
+        if (status==false){status=""}
+        console.log("status: " + status);
+        var received_msg = JSON.parse(event.data);
+        console.log(received_msg.status);
+        console.log(received_msg.id);
+        console.log(received_msg);
+        if (document.getElementById("lot_row_" + received_msg.id) != null  ) {
+            //удаление лота
+            if (received_msg.creator==null||(status!=received_msg.status&&status!="")) {
+                var myNode = document.getElementById("lot_row_" + received_msg.id);
+                while (myNode.firstChild) {
+                    myNode.removeChild(myNode.firstChild);
+                }
+                myNode.remove();
+            } else {
+                //обновление лота или повышение цены
+                document.getElementById("lot_" + received_msg.id + "_T").innerHTML = received_msg.title;
+                document.getElementById("lot_" + received_msg.id + "_D").innerHTML = received_msg.description;
+                document.getElementById("lot_" + received_msg.id + "_BP").innerHTML = received_msg.buy_price;
+                document.getElementById("lot_" + received_msg.id + "_MP").innerHTML = received_msg.min_price;
+                document.getElementById("lot_" + received_msg.id + "_PS").innerHTML = received_msg.price_step;
+                document.getElementById("lot_" + received_msg.id + "_EA").innerHTML = received_msg.end_at;
+                document.getElementById("lot_" + received_msg.id + "_S").innerHTML = received_msg.status;
+
+                if (typeof received_msg.buyer != "undefined") {
+                    document.getElementById("lot_" + received_msg.id + "_B").innerHTML = received_msg.buyer.id + " " + received_msg.buyer.first_name + " " + received_msg.buyer.last_name;
+                }
+
+            }
+        } else {
+            //создание лота
+            if (document.getElementById("lot_row_" + received_msg.id) == null && (status == received_msg.status || status == "")) {
+
+                msgNode = `
+
+            <th scope="row" id="lot_` + received_msg.id + `">` + received_msg.id + `</th>
+            <td id="lot_` + received_msg.id + `_T">` + received_msg.title + `</td>
+            <td id="lot_` + received_msg.id + `_D">` + received_msg.description + `</td>
+            <td id="lot_` + received_msg.id + `_BP">` + received_msg.buy_price + `</td>
+            <td id="lot_` + received_msg.id + `_MP">` + received_msg.min_price + `</td>
+            <td id="lot_` + received_msg.id + `_PS">` + received_msg.price_step + `</td>
+            <td id="lot_` + received_msg.id + `_EA">` + received_msg.end_at + `</td>
+            <td id="lot_` + received_msg.id + `_S">` + received_msg.status + `</td>
+            <td id="lot_` + received_msg.id + `_C">` + received_msg.creator.id + " " + received_msg.creator.first_name + " " + received_msg.creator.last_name + `</td>
+
+        `;
+                if (typeof received_msg.buyer != "undefined") {
+                    msgNode = msgNode + `<td id="lot_` + received_msg.id + `_B">` + received_msg.buyer.id + " " + received_msg.buyer.first_name + " " + received_msg.buyer.last_name + `</td>`;
+                }
+                else {
+                    msgNode = msgNode + `<td id="lot_` + received_msg.id + `_B"></td>`
+                }
+
+
+                var node = document.createElement("tr");
+                node.id = "lot_row_" + received_msg.id;
+                node.innerHTML = msgNode;
+
+
+                lots = document.getElementById("all_lots")
+                lots.insertBefore(node, lots.lastChild);
+            }
+        }
+    };
+
+
+</script>
+
+
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">title</th>
+            <th scope="col">description</th>
+            <th scope="col">buy_price</th>
+            <th scope="col">min_price</th>
+            <th scope="col">price_step</th>
+            <th scope="col">endAt</th>
+            <th scope="col">status</th>
+            <th scope="col">Creator</th>
+            <th scope="col">Buyer</th>
+        </tr>
+        </thead>
+        <tbody id="all_lots">
+
+        {{range $i,$v:=.lots}}
+        <tr id="lot_row_{{.ID}}">
+            <th scope="row" id="lot_{{.ID}}">{{.ID}}</th>
+            <td id="lot_{{.ID}}_T"> {{.Title}}</td>
+            <td id="lot_{{.ID}}_D">{{.Description}}</td>
+            <td id="lot_{{.ID}}_BP">{{.BuyPrice}}</td>
+            <td id="lot_{{.ID}}_MP">{{.MinPrice}}</td>
+            <td id="lot_{{.ID}}_PS">{{.PriceStep}}</td>
+            <td id="lot_{{.ID}}_EA">{{.EndAt}}</td>
+            <td id="lot_{{.ID}}_S">{{.Status}}</td>
+            <td id="lot_{{.ID}}_C">{{.Creator.ID}} {{.Creator.FirstName}} {{.Creator.LastName}}</td>
+            <td id="lot_{{.ID}}_B"> {{if   .Buyer  }} {{.Buyer.ID}} {{.Buyer.FirstName}} {{.Buyer.LastName}}   {{end}}</td>
+
+
+        </tr>
+        {{end}}
+
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>
+{{end}}
